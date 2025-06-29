@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Bracket Generator - Create randomized single elimination brackets</title>
+    <meta name="description" content="Generate randomized single elimination tournament brackets for 4, 8, 16, or 32 teams. Perfect for sports tournaments, competitions, and events.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            background: #3b82f6;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        main {
+            padding: 32px 0;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        input, select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        input {
+            flex: 1;
+        }
+        
+        .team-list {
+            max-height: 240px;
+            overflow-y: auto;
+            margin: 16px 0;
+        }
+        
+        .team-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .team-name {
+            font-weight: 500;
+        }
+        
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        
+        .remove-btn:hover {
+            background: #fee2e2;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #6b7280;
+            padding: 48px 0;
+        }
+        
+        .bracket {
+            display: flex;
+            gap: 32px;
+            overflow-x: auto;
+            padding: 24px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .round {
+            min-width: 200px;
+        }
+        
+        .round-title {
+            text-align: center;
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+        
+        .match {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+        
+        .team {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .team:last-child {
+            border-bottom: none;
+        }
+        
+        .team.bye {
+            background: #f9fafb;
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .sample-section {
+            background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+            border: 1px solid #c7d2fe;
+        }
+        
+        .sample-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .sample-btn {
+            background: white;
+            border: 1px solid #c7d2fe;
+            color: #3730a3;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .sample-btn:hover {
+            background: #e0e7ff;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .info-label {
+            color: #6b7280;
+        }
+        
+        .info-value {
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .alert {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🏆</div>
+                    <div>
+                        <h1>Tournament Bracket Generator</h1>
+                        <div class="subtitle">Create randomized single elimination brackets</div>
+                    </div>
+                </div>
+                <div class="header-buttons hidden" id="actionButtons">
+                    <button class="btn btn-secondary" onclick="downloadBracket()">
+                        📥 Download
+                    </button>
+                    <button class="btn btn-danger" onclick="resetTournament()">
+                        🔄 Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="setupView">
+            <div class="card">
+                <h2 style="margin-bottom: 24px;">Setup Tournament</h2>
+                
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 style="margin-bottom: 16px;">Add Teams</h3>
+                        <div class="input-group">
+                            <input type="text" id="teamInput" placeholder="Enter team name or number" onkeypress="handleKeyPress(event)">
+                            <button class="btn btn-primary" onclick="addTeam()">➕</button>
+                        </div>
+                        
+                        <div class="team-list" id="teamList">
+                            <div class="empty-state" id="emptyState">No teams added yet</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 style="margin-bottom: 16px;">Tournament Settings</h3>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Tournament Size</label>
+                            <select id="tournamentSize" onchange="updateTournamentSize()">
+                                <option value="auto">Auto (based on teams)</option>
+                                <option value="4">4 Teams</option>
+                                <option value="8">8 Teams</option>
+                                <option value="16">16 Teams</option>
+                                <option value="32">32 Teams</option>
+                            </select>
+                        </div>
+                        
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Teams Added:</span>
+                                <span class="info-value" id="teamCount">0</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Bracket Size:</span>
+                                <span class="info-value" id="bracketSize">4</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="generateBtn" onclick="generateBracket()" style="width: 100%;" disabled>
+                            Need at least 2 teams
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="alert hidden" id="errorAlert"></div>
+                
+                <div class="card sample-section">
+                    <h3 style="margin-bottom: 8px;">Quick Start</h3>
+                    <p style="color: #6b7280; margin-bottom: 16px;">Need some teams to test with? Try these sample tournaments:</p>
+                    <div class="sample-buttons">
+                        <button class="sample-btn" onclick="loadSampleTeams(['Team A', 'Team B', 'Team C', 'Team D'])">4 Sample Teams</button>
+                        <button class="sample-btn" onclick="loadSampleTeams(['Warriors', 'Lakers', 'Celtics', 'Heat', 'Bulls', 'Knicks', 'Spurs', 'Rockets'])">8 NBA Teams</button>
+                        <button class="sample-btn" onclick="loadSampleTeams(Array.from({length: 16}, (_, i) => 'Team ' + (i + 1)))">16 Numbered Teams</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bracketView" class="hidden">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h2>Tournament Bracket</h2>
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <span style="font-size: 14px; color: #6b7280;">Single Elimination</span>
+                        <span class="info-value" id="finalTeamCount">0 Teams</span>
+                    </div>
+                </div>
+                <div class="bracket" id="bracket"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let teams = [];
+        let bracket = [];
+        let tournamentSize = 'auto';
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function getRequiredBracketSize(teamCount) {
+            if (teamCount <= 4) return 4;
+            if (teamCount <= 8) return 8;
+            if (teamCount <= 16) return 16;
+            return 32;
+        }
+
+        function createBracketStructure(teamList) {
+            const shuffledTeams = shuffleArray(teamList);
+            const bracketTeams = [...shuffledTeams];
+            
+            const requiredSize = getRequiredBracketSize(teamList.length);
+            while (bracketTeams.length < requiredSize) {
+                bracketTeams.push('BYE');
+            }
+
+            const rounds = Math.log2(bracketTeams.length);
+            const structure = [];
+            
+            const firstRound = [];
+            for (let i = 0; i < bracketTeams.length; i += 2) {
+                firstRound.push({
+                    team1: bracketTeams[i],
+                    team2: bracketTeams[i + 1],
+                    winner: null
+                });
+            }
+            structure.push(firstRound);
+            
+            let currentRoundSize = firstRound.length / 2;
+            for (let round = 1; round < rounds; round++) {
+                const roundMatches = [];
+                for (let i = 0; i < currentRoundSize; i++) {
+                    roundMatches.push({
+                        team1: 'TBD',
+                        team2: 'TBD',
+                        winner: null
+                    });
+                }
+                structure.push(roundMatches);
+                currentRoundSize /= 2;
+            }
+            
+            return structure;
+        }
+
+        function getRoundName(roundIndex, totalRounds) {
+            const reverseIndex = totalRounds - roundIndex - 1;
+            
+            if (reverseIndex === 0) return 'Finals';
+            if (reverseIndex === 1) return 'Semi Finals';
+            if (reverseIndex === 2) return 'Quarter Finals';
+            if (reverseIndex === 3) return 'Round of 16';
+            if (reverseIndex === 4) return 'Round of 32';
+            
+            return 'Round ' + (roundIndex + 1);
+        }
+
+        function addTeam() {
+            const input = document.getElementById('teamInput');
+            const teamName = input.value.trim();
+            
+            if (!teamName) {
+                showError('Please enter a team name');
+                return;
+            }
+            
+            if (teams.includes(teamName)) {
+                showError('Team already exists');
+                return;
+            }
+            
+            if (teams.length >= 32) {
+                showError('Maximum 32 teams allowed');
+                return;
+            }
+            
+            teams.push(teamName);
+            input.value = '';
+            updateUI();
+            hideError();
+        }
+
+        function removeTeam(index) {
+            teams.splice(index, 1);
+            updateUI();
+        }
+
+        function loadSampleTeams(sampleTeams) {
+            teams = [...sampleTeams];
+            updateUI();
+            hideError();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                addTeam();
+            }
+        }
+
+        function updateTournamentSize() {
+            tournamentSize = document.getElementById('tournamentSize').value;
+            updateUI();
+        }
+
+        function getActualBracketSize() {
+            if (tournamentSize === 'auto') {
+                return getRequiredBracketSize(teams.length);
+            }
+            return parseInt(tournamentSize);
+        }
+
+        function updateUI() {
+            const teamList = document.getElementById('teamList');
+            const emptyState = document.getElementById('emptyState');
+            const teamCount = document.getElementById('teamCount');
+            const bracketSize = document.getElementById('bracketSize');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            teamCount.textContent = teams.length;
+            
+            const actualBracketSize = getActualBracketSize();
+            bracketSize.textContent = actualBracketSize;
+            
+            if (teams.length === 0) {
+                emptyState.classList.remove('hidden');
+                teamList.innerHTML = '<div class="empty-state">No teams added yet</div>';
+            } else {
+                emptyState.classList.add('hidden');
+                teamList.innerHTML = teams.map((team, index) => 
+                    '<div class="team-item">' +
+                        '<span class="team-name">' + team + '</span>' +
+                        '<button class="remove-btn" onclick="removeTeam(' + index + ')">❌</button>' +
+                    '</div>'
+                ).join('');
+            }
+            
+            const canGenerate = teams.length >= 2;
+            const tooManyTeams = teams.length > actualBracketSize;
+            
+            generateBtn.disabled = !canGenerate || tooManyTeams;
+            
+            if (!canGenerate) {
+                generateBtn.textContent = 'Need at least 2 teams';
+            } else if (tooManyTeams) {
+                generateBtn.textContent = 'Remove ' + (teams.length - actualBracketSize) + ' teams';
+            } else {
+                generateBtn.textContent = 'Generate Bracket';
+            }
+        }
+
+        function generateBracket() {
+            if (teams.length < 2) return;
+            
+            bracket = createBracketStructure(teams);
+            showBracket();
+        }
+
+        function showBracket() {
+            document.getElementById('setupView').classList.add('hidden');
+            document.getElementById('bracketView').classList.remove('hidden');
+            document.getElementById('actionButtons').classList.remove('hidden');
+            document.getElementById('finalTeamCount').textContent = teams.length + ' Teams';
+            
+            renderBracket();
+        }
+
+        function renderBracket() {
+            const bracketContainer = document.getElementById('bracket');
+            
+            bracketContainer.innerHTML = bracket.map((round, roundIndex) => 
+                '<div class="round">' +
+                    '<div class="round-title">' + getRoundName(roundIndex, bracket.length) + '</div>' +
+                    round.map(match => 
+                        '<div class="match">' +
+                            '<div class="team ' + (match.team1 === 'BYE' ? 'bye' : '') + '">' + match.team1 + '</div>' +
+                            '<div class="team ' + (match.team2 === 'BYE' ? 'bye' : '') + '">' + match.team2 + '</div>' +
+                        '</div>'
+                    ).join('') +
+                '</div>'
+            ).join('');
+        }
+
+        function resetTournament() {
+            teams = [];
+            bracket = [];
+            tournamentSize = 'auto';
+            document.getElementById('tournamentSize').value = 'auto';
+            document.getElementById('teamInput').value = '';
+            
+            document.getElementById('setupView').classList.remove('hidden');
+            document.getElementById('bracketView').classList.add('hidden');
+            document.getElementById('actionButtons').classList.add('hidden');
+            
+            updateUI();
+            hideError();
+        }
+
+        function downloadBracket() {
+            let content = 'Tournament Bracket - ' + teams.length + ' Teams\n';
+            content += '='.repeat(40) + '\n\n';
+            
+            bracket.forEach((round, roundIndex) => {
+                const roundName = getRoundName(roundIndex, bracket.length);
+                content += roundName + ':\n';
+                content += '-'.repeat(roundName.length + 1) + '\n';
+                
+                round.forEach((match, matchIndex) => {
+                    content += 'Match ' + (matchIndex + 1) + ': ' + match.team1 + ' vs ' + match.team2 + '\n';
+                });
+                content += '\n';
+            });
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'tournament-bracket-' + teams.length + '-teams.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            errorAlert.textContent = message;
+            errorAlert.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('errorAlert').classList.add('hidden');
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
