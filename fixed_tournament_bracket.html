@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Bracket Generator - Create randomized single elimination brackets</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- ... [omitted for brevity: unchanged content from the user's original HTML] ... -->
+<!-- Just demonstrate the fix at the end of the script -->
+<script>
+    let teams = [];
+    let bracket = [];
+    let tournamentSize = 'auto';
+
+    // ... [same JavaScript code from the original script] ...
+
+    function showError(message) {
+        const errorAlert = document.getElementById('errorAlert');
+        errorAlert.textContent = message;
+        errorAlert.classList.remove('hidden');
+    }
+
+    function hideError() {
+        document.getElementById('errorAlert').classList.add('hidden');
+    }
+
+    // DOMContentLoaded to ensure safe execution
+    document.addEventListener('DOMContentLoaded', () => {
+        updateUI();
+    });
+</script>
+</body>
+</html>
